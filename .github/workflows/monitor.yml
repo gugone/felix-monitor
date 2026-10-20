@@ -32,6 +32,10 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RESEND_REMETENTE: ${{ secrets.RESEND_REMETENTE }}
           ALERTA_EMAIL: ${{ secrets.ALERTA_EMAIL }}
+          EMAIL_SMTP: ${{ secrets.EMAIL_SMTP }}
+          EMAIL_PORTA: ${{ secrets.EMAIL_PORTA }}
+          EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
+          EMAIL_SENHA: ${{ secrets.EMAIL_SENHA }}
           TESTE: ${{ inputs.teste }}
         run: python3 monitor.py
 

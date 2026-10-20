@@ -104,7 +104,35 @@ def avisar_whatsapp(motivo, quando):
         print(f"WhatsApp ...{d[-4:]}: {'ok' if ok else info}")
 
 
+def _smtp(assunto, texto, destinos):
+    """Conta de e-mail da loja (Zoho): caminho principal. O Resend divide a cota diaria com os e-mails do
+    Clube e ja' estava esgotada no dia em que este monitor nasceu."""
+    import smtplib
+    from email.message import EmailMessage
+    host, porta = os.environ.get("EMAIL_SMTP", ""), int(os.environ.get("EMAIL_PORTA", "587") or 587)
+    usuario, senha = os.environ.get("EMAIL_REMETENTE", ""), os.environ.get("EMAIL_SENHA", "")
+    if not (host and usuario and senha):
+        return False, "smtp sem segredos"
+    msg = EmailMessage()
+    msg["Subject"], msg["From"], msg["To"] = assunto, f"Monitor da loja Félix <{usuario}>", ", ".join(destinos)
+    msg.set_content(texto)
+    try:
+        with smtplib.SMTP(host, porta, timeout=25) as s:
+            s.starttls()
+            s.login(usuario, senha)
+            s.send_message(msg)
+        return True, "smtp"
+    except Exception as e:
+        return False, f"smtp {type(e).__name__}: {str(e)[:120]}"
+
+
 def avisar_email(assunto, texto):
+    destinos = [d.strip() for d in os.environ.get("ALERTA_EMAIL", "").split(",") if d.strip()]
+    if destinos:
+        ok, info = _smtp(assunto, texto, destinos)
+        print(f"E-mail ({info}): {'ok' if ok else 'falhou'}")
+        if ok:
+            return
     chave = os.environ.get("RESEND_API_KEY", "")
     remetente = os.environ.get("RESEND_REMETENTE", "")
     destinos = [d.strip() for d in os.environ.get("ALERTA_EMAIL", "").split(",") if d.strip()]
