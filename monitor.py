@@ -72,7 +72,7 @@ def gravar_estado(e):
 
 def _post(url, corpo, headers):
     req = urllib.request.Request(url, data=json.dumps(corpo).encode(), method="POST",
-                                 headers={"Content-Type": "application/json", **headers})
+                                 headers={"Content-Type": "application/json", "User-Agent": "felix-monitor/1", **headers})
     try:
         with urllib.request.urlopen(req, timeout=20) as r:
             return True, r.status
