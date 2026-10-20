@@ -118,6 +118,11 @@ def avisar_email(assunto, texto):
 
 
 def main():
+    if os.environ.get("TESTE", "").lower() == "true":
+        quando = agora().strftime("%d/%m %H:%M")
+        avisar_whatsapp("teste do monitor externo, está tudo funcionando", quando)
+        avisar_email("Loja Félix: teste do monitor", f"Teste do monitor externo às {quando}. Se chegou, os avisos funcionam.")
+        return
     e = ler_estado()
     no_ar, cod = site_no_ar()
     t = agora()

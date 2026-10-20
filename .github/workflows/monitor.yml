@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+    inputs:
+      teste:
+        description: "Mandar um aviso de teste (e-mail e WhatsApp)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -27,6 +32,7 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RESEND_REMETENTE: ${{ secrets.RESEND_REMETENTE }}
           ALERTA_EMAIL: ${{ secrets.ALERTA_EMAIL }}
+          TESTE: ${{ inputs.teste }}
         run: python3 monitor.py
 
       - name: Gravar o estado (so' quando muda)
