@@ -1,0 +1,40 @@
+name: Monitor da loja
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  checar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checar o site e avisar se mudou
+        env:
+          WA_TOKEN: ${{ secrets.WA_TOKEN }}
+          WA_PHONE_ID: ${{ secrets.WA_PHONE_ID }}
+          ALERTA_WHATSAPP: ${{ secrets.ALERTA_WHATSAPP }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_REMETENTE: ${{ secrets.RESEND_REMETENTE }}
+          ALERTA_EMAIL: ${{ secrets.ALERTA_EMAIL }}
+        run: python3 monitor.py
+
+      - name: Gravar o estado (so' quando muda)
+        run: |
+          if [ -n "$(git status --porcelain estado.json)" ]; then
+            git config user.name "felix-monitor"
+            git config user.email "felix-monitor@users.noreply.github.com"
+            git add estado.json
+            git commit -m "estado: $(python3 -c 'import json;print(json.load(open("estado.json"))["estado"])')"
+            git push
+          fi
